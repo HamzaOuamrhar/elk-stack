@@ -1,0 +1,57 @@
+#!/bin/bash
+set -e
+
+if [[ -z "$ELASTIC_PASSWORD" || -z "$KIBANA_PASSWORD" || -z "$LOGSTASH_PASSWORD" ]]; then
+  echo "Missing required environment variables!"
+  exit 1
+fi
+
+response1=$(curl -s -w "%{http_code}" -X POST "elasticsearch:9200/_security/user/kibana_system/_password" \
+    -u "elastic:${ELASTIC_PASSWORD}" \
+    -H "Content-Type: application/json" \
+    -d "{\"password\":\"${KIBANA_PASSWORD}\"}")
+
+response2=$(curl -s -w "%{http_code}" -X POST "elasticsearch:9200/_security/role/logstash_writer" \
+  -u "elastic:${ELASTIC_PASSWORD}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "cluster": ["manage_index_templates", "monitor"],
+    "indices": [
+      {
+        "names": [ "logs-*" ],
+        "privileges": ["write", "create", "create_index", "view_index_metadata"]
+      }
+    ]
+  }')
+
+response3=$(curl -s -w "%{http_code}" -X POST "elasticsearch:9200/_security/user/logstash_author" \
+  -u "elastic:${ELASTIC_PASSWORD}" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"password\": \"${LOGSTASH_PASSWORD}\",
+    \"roles\": [\"logstash_writer\"],
+    \"full_name\": \"houamrha\"
+  }")
+
+http_code=${response1: -3}
+if [ "$http_code" = "200" ]; then
+    echo "kibana password changed with success"
+else
+    echo "Change kibana password failed, HTTP code: $http_code"
+fi
+
+http_code=${response2: -3}
+if [ "$http_code" = "200" ]; then
+    echo "Logstash role created!"
+else
+    echo "Logstash role creation failed!: $http_code"
+fi
+
+http_code=${response3: -3}
+if [ "$http_code" = "200" ]; then
+    echo "Logstash author user created!"
+else
+    echo "Logstash author user creation failed!: $http_code"
+fi
+
+echo "setup done!"

@@ -1,0 +1,82 @@
+services:
+
+ elasticsearch:
+  image: elasticsearch:tran
+  container_name: elasticsearch
+  build:
+   context: elasticsearch
+   dockerfile: Dockerfile
+  ports:
+   - "9200:9200"
+  volumes: 
+   - els_data:/usr/share/elasticsearch/data
+  environment:
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - bootstrap.password=${ELASTIC_PASSWORD}
+  healthcheck:
+    test: ["CMD-SHELL", "curl -u elastic:${ELASTIC_PASSWORD} -s http://localhost:9200/_cluster/health | grep -vq '\"status\":\"red\"'"]
+    interval: 30s
+    timeout: 10s
+    retries: 5
+
+ setup:
+  image: setup:tran
+  container_name: setup
+  build:
+    context: setup
+    dockerfile: Dockerfile
+  depends_on:
+    elasticsearch:
+      condition: service_healthy
+  environment:
+    - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+    - KIBANA_PASSWORD=${KIBANA_PASSWORD}
+    - LOGSTASH_PASSWORD=${LOGSTASH_PASSWORD}
+
+ logstash:
+  image: logstash:tran
+  container_name: logstash
+  build:
+   context: logstash
+   dockerfile: Dockerfile
+  ports:
+   - "5044:5044"
+   - "5000:5000"
+  depends_on:
+    elasticsearch:
+      condition: service_healthy
+  volumes:
+    - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+    - ./logstash/pipeline:/usr/share/logstash/pipeline
+  environment:
+    - LOGSTASH_PASSWORD=$LOGSTASH_PASSWORD
+
+ kibana:
+  image: kibana:tran
+  build:
+   context: kibana
+   dockerfile: Dockerfile
+  container_name: kibana
+  depends_on:
+    elasticsearch:
+      condition: service_healthy
+  environment:
+      - KIBANA_PASSWORD=${KIBANA_PASSWORD}
+  ports:
+   - "5601:5601"
+ 
+ backend:
+  image: backend
+  container_name: backend
+  build:
+    context: backend
+    dockerfile: Dockerfile
+  ports:
+    - "3000:3000"
+  volumes:
+    - ./backend/src:/app/src
+  
+  
+  
+volumes:
+ els_data:
