@@ -68,10 +68,12 @@ services:
    dockerfile: Dockerfile
   container_name: kibana
   depends_on:
-    elasticsearch:
+    setup:
       condition: service_healthy
   environment:
       - KIBANA_PASSWORD=${KIBANA_PASSWORD}
+  volumes:
+    - certs:/usr/share/kibana/config/certs
   ports:
    - "5601:5601"
  
