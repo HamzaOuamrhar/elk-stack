@@ -10,11 +10,11 @@ e:
 k:
 	docker exec -it --user root kibana bash
 
+l:
+	docker exec -it --user root logstash bash
+
 b:
 	docker compose up -d --build
-
-bk:
-	docker compose up -d --build kibana
 
 clean: 
 	docker compose down --rmi all --volumes --remove-orphans

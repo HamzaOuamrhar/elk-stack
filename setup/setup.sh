@@ -1,18 +1,52 @@
 #!/bin/bash
 set -e
 
+
 if [[ -z "$ELASTIC_PASSWORD" || -z "$KIBANA_PASSWORD" || -z "$LOGSTASH_PASSWORD" ]]; then
   echo "Missing required environment variables!"
   exit 1
 fi
 
-response1=$(curl -s -w "%{http_code}" -X POST "elasticsearch:9200/_security/user/kibana_system/_password" \
+
+#######################      setup certificates
+
+if [ ! -f config/ca.zip ]; then
+    bin/elasticsearch-certutil ca  --pem --silent -out config/ca.zip
+    unzip config/ca.zip -d config/certs
+    echo "CA certificate generated!"
+fi
+
+
+
+if [ ! -f config/certs/certs.zip ]; then
+    bin/elasticsearch-certutil cert --silent --pem -out config/certs.zip --in \
+      config/instances.yml --ca-cert config/certs/ca/ca.crt --ca-key config/certs/ca/ca.key
+    unzip config/certs.zip -d config/certs
+    touch /tmp/certs_ready
+    echo "Creating certifications for elk components done!"
+fi
+
+
+echo "Waiting for Elasticsearch..."
+until curl -sk --cacert config/certs/ca/ca.crt https://elasticsearch:9200 \
+  | grep -q "missing authentication credentials"; do 
+  sleep 5
+done
+echo "Elasticsearch is up..."
+
+#######################        setup authentication
+
+
+response1=$(curl -s -w "%{http_code}" -X POST "https://elasticsearch:9200/_security/user/kibana_system/_password" \
     -u "elastic:${ELASTIC_PASSWORD}" \
+    --cacert config/certs/ca/ca.crt \
     -H "Content-Type: application/json" \
     -d "{\"password\":\"${KIBANA_PASSWORD}\"}")
 
-response2=$(curl -s -w "%{http_code}" -X POST "elasticsearch:9200/_security/role/logstash_writer" \
+
+response2=$(curl -s -w "%{http_code}" -X POST "https://elasticsearch:9200/_security/role/logstash_writer" \
   -u "elastic:${ELASTIC_PASSWORD}" \
+  --cacert config/certs/ca/ca.crt \
   -H "Content-Type: application/json" \
   -d '{
     "cluster": ["manage_index_templates", "monitor"],
@@ -24,14 +58,17 @@ response2=$(curl -s -w "%{http_code}" -X POST "elasticsearch:9200/_security/role
     ]
   }')
 
-response3=$(curl -s -w "%{http_code}" -X POST "elasticsearch:9200/_security/user/logstash_author" \
+
+response3=$(curl -s -w "%{http_code}" -X POST "https://elasticsearch:9200/_security/user/logstash_author" \
   -u "elastic:${ELASTIC_PASSWORD}" \
+  --cacert config/certs/ca/ca.crt \
   -H "Content-Type: application/json" \
   -d "{
     \"password\": \"${LOGSTASH_PASSWORD}\",
     \"roles\": [\"logstash_writer\"],
     \"full_name\": \"houamrha\"
   }")
+
 
 http_code=${response1: -3}
 if [ "$http_code" = "200" ]; then
@@ -53,5 +90,7 @@ if [ "$http_code" = "200" ]; then
 else
     echo "Logstash author user creation failed!: $http_code"
 fi
+
+
 
 echo "setup done!"
