@@ -53,11 +53,12 @@ services:
    - "5044:5044"
    - "5000:5000"
   depends_on:
-    elasticsearch:
+    setup:
       condition: service_healthy
   volumes:
     - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
     - ./logstash/pipeline:/usr/share/logstash/pipeline
+    - certs:/usr/share/logstash/config/certs
   environment:
     - LOGSTASH_PASSWORD=$LOGSTASH_PASSWORD
 
