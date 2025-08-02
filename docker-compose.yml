@@ -36,6 +36,7 @@ services:
   volumes:
     - certs:/usr/share/elasticsearch/config/certs
     - ./setup/utils/instances.yml:/usr/share/elasticsearch/config/instances.yml
+    - ./setup/dashboard.ndjson:/usr/share/kibana/dashboard.ndjson
   healthcheck:
     test: ["CMD", "test", "-f", "/tmp/certs_ready"]
     interval: 3s
@@ -77,7 +78,7 @@ services:
     - certs:/usr/share/kibana/config/certs
   ports:
    - "5601:5601"
- 
+
  backend:
   image: backend
   container_name: backend

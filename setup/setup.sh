@@ -92,5 +92,20 @@ else
 fi
 
 
+# Import kibana dashboard
+
+echo "Waiting for kibana..."
+until curl -s -u elastic:${ELASTIC_PASSWORD} --cacert config/certs/ca/ca.crt https://kibana:5601/api/status | grep -q '"level":"available"'; do
+  sleep 5
+done
+
+
+curl -X POST "https://kibana:5601/api/saved_objects/_import" \
+  -H "kbn-xsrf: true" \
+  -H "Content-Type: multipart/form-data" \
+  -F file=@/usr/share/kibana/dashboard.ndjson \
+  -u elastic:${ELASTIC_PASSWORD} \
+  --cacert config/certs/ca/ca.crt
+
 
 echo "setup done!"
