@@ -23,6 +23,7 @@ if [ ! -f config/certs/certs.zip ]; then
       config/instances.yml --ca-cert config/certs/ca/ca.crt --ca-key config/certs/ca/ca.key
     unzip config/certs.zip -d config/certs
     touch /tmp/certs_ready
+    rm config/certs/ca/ca.key
     echo "Creating certifications for elk components done!"
 fi
 

@@ -9,7 +9,8 @@ services:
 
   volumes: 
    - els_data:/usr/share/elasticsearch/data
-   - certs:/usr/share/elasticsearch/config/certs
+   - ca:/usr/share/elasticsearch/config/certs/ca
+   - elasticsearch_certs:/usr/share/elasticsearch/config/certs/elasticsearch
   environment:
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
       - bootstrap.password=${ELASTIC_PASSWORD}
@@ -18,7 +19,7 @@ services:
       condition: service_healthy
   healthcheck:
     test: ["CMD-SHELL", "curl -u elastic:${ELASTIC_PASSWORD} -s --cacert /usr/share/elasticsearch/config/certs/ca/ca.crt https://localhost:9200/_cluster/health | grep -vq '\"status\":\"red\"'"]
-    interval: 5s
+    interval: 10s
     timeout: 10s
     retries: 5
 
@@ -33,7 +34,10 @@ services:
     - KIBANA_PASSWORD=${KIBANA_PASSWORD}
     - LOGSTASH_PASSWORD=${LOGSTASH_PASSWORD}
   volumes:
-    - certs:/usr/share/elasticsearch/config/certs
+    - ca:/usr/share/elasticsearch/config/certs/ca
+    - elasticsearch_certs:/usr/share/elasticsearch/config/certs/elasticsearch
+    - logstash_certs:/usr/share/elasticsearch/config/certs/logstash
+    - kibana_certs:/usr/share/elasticsearch/config/certs/kibana
     - ./setup/utils/instances.yml:/usr/share/elasticsearch/config/instances.yml
     - ./setup/dashboard.ndjson:/usr/share/kibana/dashboard.ndjson
   healthcheck:
@@ -55,7 +59,8 @@ services:
   volumes:
     - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
     - ./logstash/pipeline:/usr/share/logstash/pipeline
-    - certs:/usr/share/logstash/config/certs
+    - ca:/usr/share/logstash/config/certs/ca
+    - logstash_certs:/usr/share/logstash/config/certs/logstash
   environment:
     - LOGSTASH_PASSWORD=$LOGSTASH_PASSWORD
 
@@ -72,7 +77,8 @@ services:
       - KIBANA_PASSWORD=${KIBANA_PASSWORD}
       - KIBANA_ENCRYPTION_KEY=${KIBANA_ENCRYPTION_KEY}
   volumes:
-    - certs:/usr/share/kibana/config/certs
+    - ca:/usr/share/kibana/config/certs/ca
+    - kibana_certs:/usr/share/kibana/config/certs/kibana
   ports:
    - "5601:5601"
 
@@ -92,3 +98,7 @@ services:
 volumes:
  els_data:
  certs:
+ ca:
+ elasticsearch_certs:
+ kibana_certs:
+ logstash_certs:
