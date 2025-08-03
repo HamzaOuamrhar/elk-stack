@@ -6,8 +6,7 @@ services:
   build:
    context: elasticsearch
    dockerfile: Dockerfile
-  ports:
-   - "9200:9200"
+
   volumes: 
    - els_data:/usr/share/elasticsearch/data
    - certs:/usr/share/elasticsearch/config/certs
@@ -50,9 +49,6 @@ services:
   build:
    context: logstash
    dockerfile: Dockerfile
-  ports:
-   - "5044:5044"
-   - "5000:5000"
   depends_on:
     setup:
       condition: service_healthy
@@ -74,6 +70,7 @@ services:
       condition: service_healthy
   environment:
       - KIBANA_PASSWORD=${KIBANA_PASSWORD}
+      - KIBANA_ENCRYPTION_KEY=${KIBANA_ENCRYPTION_KEY}
   volumes:
     - certs:/usr/share/kibana/config/certs
   ports:

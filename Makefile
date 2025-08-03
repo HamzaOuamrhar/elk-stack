@@ -19,4 +19,7 @@ b:
 clean: 
 	docker compose down --rmi all --volumes --remove-orphans
 
+super_clean: clean
+	docker system prune -a
+
 .PHONY: e
