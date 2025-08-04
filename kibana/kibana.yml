@@ -6,7 +6,6 @@ elasticsearch.hosts: ["https://elasticsearch:9200"]
 elasticsearch.username: "kibana_system"
 elasticsearch.password: "${KIBANA_PASSWORD}"
 
-# monitoring.ui.container.elasticsearch.enabled: true
 
 server.ssl.enabled: true
 server.ssl.certificate: config/certs/kibana/kibana.crt
@@ -16,4 +15,3 @@ elasticsearch.ssl.certificateAuthorities: ["config/certs/ca/ca.crt"]
 
 
 xpack.security.encryptionKey: "${KIBANA_ENCRYPTION_KEY}"
-# xpack.encryptedSavedObjects.encryptionKey: "${KIBANA_ENCRYPTION_KEY}"

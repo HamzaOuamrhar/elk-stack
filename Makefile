@@ -22,4 +22,6 @@ clean:
 super_clean: clean
 	docker system prune -a
 
+re: clean all
+
 .PHONY: e

@@ -1,12 +1,9 @@
 #!/bin/bash
-set -e
 
-
-if [[ -z "$ELASTIC_PASSWORD" || -z "$KIBANA_PASSWORD" || -z "$LOGSTASH_PASSWORD" ]]; then
+if [[ -z "$ELASTIC_PASSWORD" || -z "$KIBANA_PASSWORD" || -z "$LOGSTASH_PASSWORD" || -z "$KIBANA_ENCRYPTION_KEY" ]]; then
   echo "Missing required environment variables!"
   exit 1
 fi
-
 
 #######################      setup certificates
 
@@ -29,7 +26,7 @@ fi
 
 
 echo "Waiting for Elasticsearch..."
-until curl -sk --cacert config/certs/ca/ca.crt https://elasticsearch:9200 \
+until curl -s --cacert config/certs/ca/ca.crt https://elasticsearch:9200 \
   | grep -q "missing authentication credentials"; do 
   sleep 5
 done
@@ -92,7 +89,6 @@ else
     echo "Logstash author user creation failed!: $http_code"
 fi
 
-
 # Import kibana dashboard
 
 echo "Waiting for kibana..."
@@ -101,12 +97,12 @@ until curl -s -u elastic:${ELASTIC_PASSWORD} --cacert config/certs/ca/ca.crt htt
 done
 
 
-curl -X POST "https://kibana:5601/api/saved_objects/_import" \
+curl -s -X POST "https://kibana:5601/api/saved_objects/_import" \
   -H "kbn-xsrf: true" \
   -H "Content-Type: multipart/form-data" \
   -F file=@/usr/share/kibana/dashboard.ndjson \
   -u elastic:${ELASTIC_PASSWORD} \
-  --cacert config/certs/ca/ca.crt
-
+  --cacert config/certs/ca/ca.crt \
+  -o /dev/null
 
 echo "setup done!"

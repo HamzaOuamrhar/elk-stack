@@ -13,7 +13,6 @@ services:
    - elasticsearch_certs:/usr/share/elasticsearch/config/certs/elasticsearch
   environment:
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-      - bootstrap.password=${ELASTIC_PASSWORD}
   depends_on:
     setup:
       condition: service_healthy
@@ -33,6 +32,7 @@ services:
     - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
     - KIBANA_PASSWORD=${KIBANA_PASSWORD}
     - LOGSTASH_PASSWORD=${LOGSTASH_PASSWORD}
+    - KIBANA_ENCRYPTION_KEY=${KIBANA_ENCRYPTION_KEY}
   volumes:
     - ca:/usr/share/elasticsearch/config/certs/ca
     - elasticsearch_certs:/usr/share/elasticsearch/config/certs/elasticsearch
@@ -97,7 +97,6 @@ services:
   
 volumes:
  els_data:
- certs:
  ca:
  elasticsearch_certs:
  kibana_certs:
