@@ -10,4 +10,6 @@ COPY . .
 
 EXPOSE 3000
 
+RUN mkdir logs
+
 CMD ["npm", "run", "dev"]

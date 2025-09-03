@@ -1,38 +1,39 @@
-import Fastify from 'fastify'
-import net from 'net'
+import Fastify, { FastifyRequest, FastifyReply } from 'fastify';
+import fs from 'fs';
+import path from 'path';
 
-const fastify = Fastify()
+const logStream = fs.createWriteStream('./logs/app.log', { flags: 'a' });
 
-function sendLogToLogstash(log: object) {
-  const client = new net.Socket()
+const fastify = Fastify({
+  logger: {
+    level: process.env.LOG_LEVEL || 'info',
+    stream: logStream,
+    base: null,
+    timestamp: () => `,"time":"${new Date().toISOString()}"`
+  }
+});
 
-  client.connect(5000, 'logstash', () => {
-    client.write(JSON.stringify(log) + '\n')
-    client.end()
-  })
-
-  client.on('error', (err) => {
-    console.error('Logstash connection error:', err.message)
-  })
+function logEvent(level: string, service: string, event: string, data: Record<string, any> = {}) {
+  (fastify.log as any)[level]({
+    service,
+    event,
+    ...data,
+  });
 }
 
-fastify.get('/log', async () => {
-  const log = {
-    message: 'GET /log was called',
-    level: 'info',
-    timestamp: new Date().toISOString(),
-    service: 'backend'
+fastify.get('/login', async (req: FastifyRequest, reply: FastifyReply) => {
+  logEvent('info', 'user_auth', 'user_login', { userId: '123' });
+  return { status: 'login in' };
+});
+
+
+const start = async () => {
+  try {
+    await fastify.listen({ port: 3000, host: '0.0.0.0' });
+    fastify.log.info('Server running on port 3000');
+  } catch (err) {
+    fastify.log.error(err);
+    process.exit(1);
   }
-
-  sendLogToLogstash(log)
-
-  return { status: 'log sent' }
-})
-
-fastify.listen({ port: 3000, host: '0.0.0.0' }, (err, address) => {
-  if (err) {
-    console.error(err)
-    process.exit(1)
-  }
-  console.log(`Server running at ${address}`)
-})
+};
+start();

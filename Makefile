@@ -14,7 +14,7 @@ l:
 	docker exec -it --user root logstash bash
 
 b:
-	docker compose up -d --build
+	docker exec -it --user root backend bash
 
 clean: 
 	docker compose down --rmi all --volumes --remove-orphans

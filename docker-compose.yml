@@ -92,8 +92,8 @@ services:
     - "3000:3000"
   volumes:
     - ./backend/src:/app/src
-  
-  
+    - ./logs:/app/logs
+
   
 volumes:
  els_data:
