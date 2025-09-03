@@ -61,6 +61,7 @@ services:
     - ./logstash/pipeline:/usr/share/logstash/pipeline
     - ca:/usr/share/logstash/config/certs/ca
     - logstash_certs:/usr/share/logstash/config/certs/logstash
+    - ./logs:/var/log/app-logs
   environment:
     - LOGSTASH_PASSWORD=$LOGSTASH_PASSWORD
 
