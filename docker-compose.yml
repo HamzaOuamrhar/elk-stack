@@ -54,7 +54,7 @@ services:
    context: logstash
    dockerfile: Dockerfile
   depends_on:
-    setup:
+    elasticsearch:
       condition: service_healthy
   volumes:
     - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
@@ -84,15 +84,27 @@ services:
    - "5601:5601"
 
  backend:
-  image: backend
-  container_name: backend
+  image: game
+  container_name: game
   build:
-    context: backend
+    context: game
     dockerfile: Dockerfile
   ports:
     - "3000:3000"
   volumes:
-    - ./backend/src:/app/src
+    - ./game/src:/app/src
+    - ./logs:/app/logs
+  
+ user:
+  image: user
+  container_name: user
+  build:
+    context: user
+    dockerfile: Dockerfile
+  ports:
+    - "3001:3000"
+  volumes:
+    - ./user/src:/app/src
     - ./logs:/app/logs
 
   

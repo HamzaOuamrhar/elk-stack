@@ -1,0 +1,2 @@
+https://localhost:9200/_data_stream/logs-game*
+https://localhost:9200/logs-user/_search?pretty
