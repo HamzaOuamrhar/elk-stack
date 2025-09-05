@@ -13,15 +13,18 @@ k:
 l:
 	docker exec -it --user root logstash bash
 
-b:
-	docker exec -it --user root backend bash
+user: 
+	docker exec -it user bash
 
 clean: 
 	docker compose down --rmi all --volumes --remove-orphans
+	for f in logs/*.log; do \
+		echo "" > "$$f"; \
+	done
 
 super_clean: clean
 	docker system prune -a
 
 re: clean all
 
-.PHONY: e
+.PHONY: e user

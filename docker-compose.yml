@@ -54,7 +54,7 @@ services:
    context: logstash
    dockerfile: Dockerfile
   depends_on:
-    elasticsearch:
+    setup:
       condition: service_healthy
   volumes:
     - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml

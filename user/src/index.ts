@@ -22,9 +22,42 @@ function logEvent(level: string, service: string, event: string, data: Record<st
 }
 
 
-fastify.get('/login', async (req: FastifyRequest, reply: FastifyReply) => {
-  logEvent('info', 'user', 'user_login', { userId: '123' });
-  return { status: 'login in' };
+fastify.get('/local', async (req: FastifyRequest, reply: FastifyReply) => {
+    logEvent('info', 'user', 'user_login', { 
+      resut: 'success',
+      provider: "local"
+    })
+    return { status: 'local login' };
+});
+
+fastify.get('/google', async (req: FastifyRequest, reply: FastifyReply) => {
+    logEvent('info', 'user', 'user_login', { 
+      resut: 'failure',
+      provider: "google"
+    })
+    return { status: 'google login' };
+});
+
+fastify.get('/intra', async (req: FastifyRequest, reply: FastifyReply) => {
+    logEvent('info', 'user', 'user_login', { 
+      resut: 'success',
+      provider: "intra"
+    })
+    return { status: 'intra login' };
+});
+
+fastify.get('/accept', async (req: FastifyRequest, reply: FastifyReply) => {
+    logEvent('info', 'user', 'friend_request', { 
+      action: 'accept',
+    });
+    return { status: 'accept' };
+});
+
+fastify.get('/reject', async (req: FastifyRequest, reply: FastifyReply) => {
+    logEvent('info', 'user', 'friend_request', { 
+      action: 'reject',
+    });
+    return { status: 'reject' };
 });
 
 

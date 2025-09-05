@@ -21,9 +21,25 @@ function logEvent(level: string, service: string, event: string, data: Record<st
   });
 }
 
-fastify.get('/play', async (req: FastifyRequest, reply: FastifyReply) => {
-  logEvent('info', 'game', 'game_join', { userId: '123' });
-  return { status: 'join in' };
+fastify.get('/remote', async (req: FastifyRequest, reply: FastifyReply) => {
+  logEvent('info', 'game', 'game_play', {
+    mode: "remote"    
+  });
+  return { status: 'remote' };
+});
+
+fastify.get('/local', async (req: FastifyRequest, reply: FastifyReply) => {
+  logEvent('info', 'game', 'game_play', {
+    mode: "local"    
+  });
+  return { status: 'local' };
+});
+
+fastify.get('/tournament', async (req: FastifyRequest, reply: FastifyReply) => {
+  logEvent('info', 'game', 'game_play', {
+    mode: "tournament"    
+  });
+  return { status: 'tournament' };
 });
 
 const start = async () => {

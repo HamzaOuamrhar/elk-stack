@@ -50,7 +50,7 @@ response2=$(curl -s -w "%{http_code}" -X POST "https://elasticsearch:9200/_secur
     "cluster": ["manage_index_templates", "monitor"],
     "indices": [
       {
-        "names": [ "logs-user", "logs-game" ],
+        "names": [ "transcendence-logs" ],
         "privileges": ["write", "create", "create_index", "view_index_metadata"]
       }
     ]
