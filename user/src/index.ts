@@ -60,6 +60,35 @@ fastify.get('/reject', async (req: FastifyRequest, reply: FastifyReply) => {
     return { status: 'reject' };
 });
 
+fastify.get('/block1', async (req: FastifyRequest, reply: FastifyReply) => {
+    logEvent('info', 'user', 'user_block', { 
+      blocked_user: "houamrha",
+    });
+    return { status: 'user blocked' };
+});
+fastify.get('/block2', async (req: FastifyRequest, reply: FastifyReply) => {
+    logEvent('info', 'user', 'user_block', { 
+      blocked_user: "aaghla",
+    });
+    return { status: 'user blocked' };
+});
+
+fastify.get('/block3', async (req: FastifyRequest, reply: FastifyReply) => {
+    logEvent('info', 'user', 'user_block', { 
+      blocked_user: "amentag",
+    });
+    return { status: 'user blocked' };
+});
+
+fastify.get('/block4', async (req: FastifyRequest, reply: FastifyReply) => {
+    logEvent('info', 'user', 'user_block', { 
+      blocked_user: "rel-isma",
+    });
+    return { status: 'user blocked' };
+});
+
+
+
 
 const start = async () => {
   try {

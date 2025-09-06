@@ -20,7 +20,7 @@ services:
     test: ["CMD-SHELL", "curl -u elastic:${ELASTIC_PASSWORD} -s --cacert /usr/share/elasticsearch/config/certs/ca/ca.crt https://localhost:9200/_cluster/health | grep -vq '\"status\":\"red\"'"]
     interval: 10s
     timeout: 10s
-    retries: 5
+    retries: 7
 
  setup:
   image: setup:tran
