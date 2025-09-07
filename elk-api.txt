@@ -1,2 +1,6 @@
-https://localhost:9200/_data_stream/logs-game*
-https://localhost:9200/logs-user/_search?pretty
+_data_stream/logs-game*
+logs-user/_search?pretty
+_snapshot/my_s3_repository/_all
+_slm/policy/daily-logs-snapshot/_execute
+
+curl -k -u elastic:hamza1 https://localhost:9200

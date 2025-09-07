@@ -5,13 +5,13 @@ down:
 	docker compose down
 
 e:
-	docker exec -it --user root elasticsearch bash
+	docker exec -it elasticsearch bash
 
 k:
-	docker exec -it --user root kibana bash
+	docker exec -it kibana bash
 
 l:
-	docker exec -it --user root logstash bash
+	docker exec -it logstash bash
 
 user: 
 	docker exec -it user bash

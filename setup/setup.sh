@@ -68,6 +68,59 @@ response3=$(curl -s -w "%{http_code}" -X POST "https://elasticsearch:9200/_secur
   }")
 
 
+# Setup data retention and archiving policies
+
+response4=$(curl -s -w "%{http_code}" -X PUT "https://elasticsearch:9200/_snapshot/s3_repo" \
+  -u "elastic:${ELASTIC_PASSWORD}" \
+  --cacert config/certs/ca/ca.crt \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"type\": \"s3\",
+    \"settings\": {
+      \"bucket\": \"trans-elasticsearch\",
+      \"region\": \"eu-north-1\",
+      \"endpoint\": \"https://s3.eu-north-1.amazonaws.com\"
+    }
+  }")
+
+response5=$(curl -s -w "%{http_code}" -X PUT "https://elasticsearch:9200/_slm/policy/daily-logs-snapshot" \
+  -u "elastic:${ELASTIC_PASSWORD}" \
+  --cacert config/certs/ca/ca.crt \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"schedule\": \"0 0 0 * * ?\",
+    \"name\": \"snapshot-logs\",
+    \"repository\": \"s3_repo\",
+    \"config\": {
+      \"indices\": [\"transcendence-logs\"],
+      \"ignore_unavailable\": true,
+      \"include_global_state\": false
+    }
+}")
+
+
+
+response6=$(curl -s -w "%{http_code}" -X PUT "https://elasticsearch:9200/_index_template/transcendence-logs-template" \
+  -u "elastic:${ELASTIC_PASSWORD}" \
+  --cacert config/certs/ca/ca.crt \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"index_patterns\": [\"transcendence-logs\"],
+    \"template\": {
+      \"settings\": {
+        \"index.lifecycle.name\": \"logs-delete-after-30d\"
+      }
+    }
+}")
+
+
+http_code=${response4: -3}
+echo "one: $http_code"
+http_code=${response5: -3}
+echo "two: $http_code"
+http_code=${response6: -3}
+echo "three: $http_code"
+
 http_code=${response1: -3}
 if [ "$http_code" = "200" ]; then
     echo "kibana password changed with success"
