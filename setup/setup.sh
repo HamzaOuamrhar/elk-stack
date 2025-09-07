@@ -88,7 +88,7 @@ response5=$(curl -s -w "%{http_code}" -X PUT "https://elasticsearch:9200/_slm/po
   --cacert config/certs/ca/ca.crt \
   -H "Content-Type: application/json" \
   -d "{
-    \"schedule\": \"0 0 0 * * ?\",
+    \"schedule\": \"0 50 23 * * ?\",
     \"name\": \"snapshot-logs\",
     \"repository\": \"s3_repo\",
     \"config\": {
@@ -100,7 +100,32 @@ response5=$(curl -s -w "%{http_code}" -X PUT "https://elasticsearch:9200/_slm/po
 
 
 
-response6=$(curl -s -w "%{http_code}" -X PUT "https://elasticsearch:9200/_index_template/transcendence-logs-template" \
+response6=$(curl -s -w "%{http_code}" -X PUT "https://elasticsearch:9200/_ilm/policy/logs-delete-daily" \
+  -u "elastic:${ELASTIC_PASSWORD}" \
+  --cacert config/certs/ca/ca.crt \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"policy\": {
+      \"phases\": {
+        \"hot\": {
+          \"actions\": {
+            \"set_priority\": { \"priority\": 100 }
+          }
+        },
+        \"delete\": {
+          \"min_age\": \"1d\",
+          \"actions\": {
+            \"delete\": {}
+          }
+        }
+      }
+  }
+}")
+
+
+
+
+response7=$(curl -s -w "%{http_code}" -X PUT "https://elasticsearch:9200/_index_template/transcendence-logs-template" \
   -u "elastic:${ELASTIC_PASSWORD}" \
   --cacert config/certs/ca/ca.crt \
   -H "Content-Type: application/json" \
@@ -108,11 +133,10 @@ response6=$(curl -s -w "%{http_code}" -X PUT "https://elasticsearch:9200/_index_
     \"index_patterns\": [\"transcendence-logs\"],
     \"template\": {
       \"settings\": {
-        \"index.lifecycle.name\": \"logs-delete-after-30d\"
+        \"index.lifecycle.name\": \"logs-delete-daily\"
       }
     }
 }")
-
 
 http_code=${response4: -3}
 echo "one: $http_code"
@@ -120,6 +144,8 @@ http_code=${response5: -3}
 echo "two: $http_code"
 http_code=${response6: -3}
 echo "three: $http_code"
+http_code=${response7: -3}
+echo "four: $http_code"
 
 http_code=${response1: -3}
 if [ "$http_code" = "200" ]; then
