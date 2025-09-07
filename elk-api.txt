@@ -2,5 +2,11 @@ _data_stream/logs-game*
 logs-user/_search?pretty
 _snapshot/my_s3_repository/_all
 _slm/policy/daily-logs-snapshot/_execute
+_snapshot/s3_repo/snapshot-logs-{now}-ecnt2spsqkc7vmhfj9fx9a/_restore
+{
+    "indices": "transcendence-logs",
+    "include_global_state": false
+}
+
 
 curl -k -u elastic:hamza1 https://localhost:9200
