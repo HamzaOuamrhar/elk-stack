@@ -16,6 +16,8 @@ The project consists of a fully containerized ELK stack integrated with three No
 - **Chat Service**: Fastify-based API for chat-related events
 - **Setup Service**: Automated configuration for certificates, users, and policies
 
+> **Note**: The current backend services (Game, Chat and User) are example implementations demonstrating the logging capabilities. These will be removed later, leaving a clean, production-ready ELK stack that can be integrated with any application.
+
 ## 📁 Project Structure
 
 ```
